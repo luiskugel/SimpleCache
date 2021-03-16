@@ -1,3 +1,5 @@
+import fs from "fs/promises";
+
 export class SimpleCache {
   value: any;
   getterFunction: (key: string) => void;
@@ -80,6 +82,28 @@ export class ArrayCache extends SimpleCache {
     return this.value[key].value.filter((storedValue: any) =>
       valueArray.includes(storedValue)
     );
+  }
+}
+
+export class JSONFileHandler {
+  filename: string;
+  backupTime: number;
+  value: any;
+  cleanUpRoutine: undefined | NodeJS.Timeout;
+  constructor(filename: string, backupTime: number) {
+    this.filename = filename;
+    this.backupTime = backupTime;
+    this.value = undefined;
+    this.cleanUpRoutine = undefined;
+  }
+  async get() {
+    if (this.value) return this.value;
+    this.value = await fs.readFile(this.filename, "utf8");
+    this.cleanUpRoutine = setTimeout(this._backup, this.backupTime);
+    return this.value;
+  }
+  async _backup() {
+    await fs.writeFile(this.filename, this.value, { encoding: "utf-8" });
   }
 }
 

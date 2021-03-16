@@ -1,6 +1,10 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.splitCompositeKey = exports.createCompositeKey = exports.ArrayCache = exports.SimpleCache = void 0;
+exports.splitCompositeKey = exports.createCompositeKey = exports.JSONFileHandler = exports.ArrayCache = exports.SimpleCache = void 0;
+const promises_1 = __importDefault(require("fs/promises"));
 class SimpleCache {
     constructor(cacheInvalidationTime, getterFunction = (key) => { }, cleanupFunction = (key, value) => { }) {
         this.cleanUp = () => {
@@ -67,6 +71,25 @@ class ArrayCache extends SimpleCache {
     }
 }
 exports.ArrayCache = ArrayCache;
+class JSONFileHandler {
+    constructor(filename, backupTime) {
+        this.filename = filename;
+        this.backupTime = backupTime;
+        this.value = undefined;
+        this.cleanUpRoutine = undefined;
+    }
+    async get() {
+        if (this.value)
+            return this.value;
+        this.value = await promises_1.default.readFile(this.filename, "utf8");
+        this.cleanUpRoutine = setTimeout(this._backup, this.backupTime);
+        return this.value;
+    }
+    async _backup() {
+        await promises_1.default.writeFile(this.filename, this.value, { encoding: "utf-8" });
+    }
+}
+exports.JSONFileHandler = JSONFileHandler;
 function createCompositeKey(...keyParts) {
     return keyParts.join("#");
 }

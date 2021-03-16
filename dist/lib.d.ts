@@ -4,7 +4,7 @@ export declare class SimpleCache {
     getterFunction: (key: string) => void;
     cleanupFunction: (key: string, value: any) => void;
     cacheInvalidationTime: number;
-    cleanUpScheduler: NodeJS.Timeout;
+    cleanUpScheduler: any;
     constructor(cacheInvalidationTime: number, getterFunction?: (key: string) => void, cleanupFunction?: (key: string, value: any) => void);
     get(key: string): Promise<any>;
     exists(key: string): boolean;
@@ -18,6 +18,15 @@ export declare class ArrayCache extends SimpleCache {
     pushArray(key: string, valueArray: any[]): void;
     drop(key: string, value: any): void;
     dropArray(key: string, valueArray: any[]): any;
+}
+export declare class JSONFileHandler {
+    filename: string;
+    backupTime: number;
+    value: any;
+    cleanUpRoutine: undefined | NodeJS.Timeout;
+    constructor(filename: string, backupTime: number);
+    get(): Promise<any>;
+    _backup(): Promise<void>;
 }
 export declare function createCompositeKey(...keyParts: string[]): string;
 export declare function splitCompositeKey(key: string): string[];
