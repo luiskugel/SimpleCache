@@ -102,7 +102,7 @@ export class JSONFileHandler {
     if (lock && this.locked) wait(10);
     if (!lock) this.locked = true;
     if (this.value) return this.value;
-    this.value = await fs.readFile(this.filename, "utf8");
+    this.value = JSON.parse(await fs.readFile(this.filename, "utf8"));
     return this.value;
   }
   set(data: any, lock = false) {
@@ -116,7 +116,9 @@ export class JSONFileHandler {
     this.locked = lock;
   }
   async save() {
-    await fs.writeFile(this.filename, this.value, { encoding: "utf-8" });
+    await fs.writeFile(this.filename, JSON.stringify(this.value), {
+      encoding: "utf-8",
+    });
   }
 }
 

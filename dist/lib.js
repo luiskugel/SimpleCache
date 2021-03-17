@@ -86,7 +86,7 @@ class JSONFileHandler {
             this.locked = true;
         if (this.value)
             return this.value;
-        this.value = await promises_1.default.readFile(this.filename, "utf8");
+        this.value = JSON.parse(await promises_1.default.readFile(this.filename, "utf8"));
         return this.value;
     }
     set(data, lock = false) {
@@ -99,7 +99,9 @@ class JSONFileHandler {
         this.locked = lock;
     }
     async save() {
-        await promises_1.default.writeFile(this.filename, this.value, { encoding: "utf-8" });
+        await promises_1.default.writeFile(this.filename, JSON.stringify(this.value), {
+            encoding: "utf-8",
+        });
     }
 }
 exports.JSONFileHandler = JSONFileHandler;
