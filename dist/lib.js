@@ -82,7 +82,7 @@ class JSONFileHandler {
     async get(lock = true) {
         if (lock && this.locked)
             wait(10);
-        if (!lock)
+        if (lock)
             this.locked = true;
         if (this.value)
             return this.value;

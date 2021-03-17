@@ -100,7 +100,7 @@ export class JSONFileHandler {
   }
   async get(lock = true) {
     if (lock && this.locked) wait(10);
-    if (!lock) this.locked = true;
+    if (lock) this.locked = true;
     if (this.value) return this.value;
     this.value = JSON.parse(await fs.readFile(this.filename, "utf8"));
     return this.value;
