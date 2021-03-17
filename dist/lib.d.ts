@@ -21,12 +21,13 @@ export declare class ArrayCache extends SimpleCache {
 }
 export declare class JSONFileHandler {
     filename: string;
-    backupTime: number;
+    saveTimeout: number;
     value: any;
-    cleanUpRoutine: undefined | NodeJS.Timeout;
-    constructor(filename: string, backupTime: number);
+    saveRoutine: undefined | NodeJS.Timeout;
+    constructor(filename: string, saveTimeout: number);
     get(): Promise<any>;
-    _backup(): Promise<void>;
+    set(data: any): void;
+    save(): Promise<void>;
 }
 export declare function createCompositeKey(...keyParts: string[]): string;
 export declare function splitCompositeKey(key: string): string[];

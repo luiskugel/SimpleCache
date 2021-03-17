@@ -87,22 +87,26 @@ export class ArrayCache extends SimpleCache {
 
 export class JSONFileHandler {
   filename: string;
-  backupTime: number;
+  saveTimeout: number;
   value: any;
-  cleanUpRoutine: undefined | NodeJS.Timeout;
-  constructor(filename: string, backupTime: number) {
+  saveRoutine: undefined | NodeJS.Timeout;
+  constructor(filename: string, saveTimeout: number) {
     this.filename = filename;
-    this.backupTime = backupTime;
+    this.saveTimeout = saveTimeout;
     this.value = undefined;
-    this.cleanUpRoutine = undefined;
+    this.saveRoutine = undefined;
   }
   async get() {
     if (this.value) return this.value;
     this.value = await fs.readFile(this.filename, "utf8");
-    this.cleanUpRoutine = setTimeout(this._backup, this.backupTime);
     return this.value;
   }
-  async _backup() {
+  set(data: any) {
+    if (this.saveRoutine) clearTimeout(this.saveRoutine);
+    this.value = data;
+    this.saveRoutine = setTimeout(this.save, this.saveTimeout);
+  }
+  async save() {
     await fs.writeFile(this.filename, this.value, { encoding: "utf-8" });
   }
 }

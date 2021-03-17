@@ -72,20 +72,25 @@ class ArrayCache extends SimpleCache {
 }
 exports.ArrayCache = ArrayCache;
 class JSONFileHandler {
-    constructor(filename, backupTime) {
+    constructor(filename, saveTimeout) {
         this.filename = filename;
-        this.backupTime = backupTime;
+        this.saveTimeout = saveTimeout;
         this.value = undefined;
-        this.cleanUpRoutine = undefined;
+        this.saveRoutine = undefined;
     }
     async get() {
         if (this.value)
             return this.value;
         this.value = await promises_1.default.readFile(this.filename, "utf8");
-        this.cleanUpRoutine = setTimeout(this._backup, this.backupTime);
         return this.value;
     }
-    async _backup() {
+    set(data) {
+        if (this.saveRoutine)
+            clearTimeout(this.saveRoutine);
+        this.value = data;
+        this.saveRoutine = setTimeout(this.save, this.saveTimeout);
+    }
+    async save() {
         await promises_1.default.writeFile(this.filename, this.value, { encoding: "utf-8" });
     }
 }
