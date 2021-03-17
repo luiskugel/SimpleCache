@@ -77,18 +77,26 @@ class JSONFileHandler {
         this.saveTimeout = saveTimeout;
         this.value = undefined;
         this.saveRoutine = undefined;
+        this.locked = false;
     }
-    async get() {
+    async get(lock = true) {
+        if (lock && this.locked)
+            wait(10);
+        if (!lock)
+            this.locked = true;
         if (this.value)
             return this.value;
         this.value = await promises_1.default.readFile(this.filename, "utf8");
         return this.value;
     }
-    set(data) {
+    set(data, lock = false) {
         if (this.saveRoutine)
             clearTimeout(this.saveRoutine);
         this.value = data;
         this.saveRoutine = setTimeout(this.save, this.saveTimeout);
+        if (!this.locked)
+            throw Error("The Ressource was not locked before writing! This can lead to race conditions!");
+        this.locked = lock;
     }
     async save() {
         await promises_1.default.writeFile(this.filename, this.value, { encoding: "utf-8" });
@@ -103,3 +111,10 @@ function splitCompositeKey(key) {
     return key.split("#");
 }
 exports.splitCompositeKey = splitCompositeKey;
+function wait(timeout) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            resolve();
+        }, timeout);
+    });
+}

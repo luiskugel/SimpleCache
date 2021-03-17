@@ -90,21 +90,30 @@ export class JSONFileHandler {
   saveTimeout: number;
   value: any;
   saveRoutine: undefined | NodeJS.Timeout;
+  locked: boolean;
   constructor(filename: string, saveTimeout: number) {
     this.filename = filename;
     this.saveTimeout = saveTimeout;
     this.value = undefined;
     this.saveRoutine = undefined;
+    this.locked = false;
   }
-  async get() {
+  async get(lock = true) {
+    if (lock && this.locked) wait(10);
+    if (!lock) this.locked = true;
     if (this.value) return this.value;
     this.value = await fs.readFile(this.filename, "utf8");
     return this.value;
   }
-  set(data: any) {
+  set(data: any, lock = false) {
     if (this.saveRoutine) clearTimeout(this.saveRoutine);
     this.value = data;
     this.saveRoutine = setTimeout(this.save, this.saveTimeout);
+    if (!this.locked)
+      throw Error(
+        "The Ressource was not locked before writing! This can lead to race conditions!"
+      );
+    this.locked = lock;
   }
   async save() {
     await fs.writeFile(this.filename, this.value, { encoding: "utf-8" });
@@ -117,4 +126,12 @@ export function createCompositeKey(...keyParts: string[]): string {
 
 export function splitCompositeKey(key: string): string[] {
   return key.split("#");
+}
+
+function wait(timeout: number): Promise<void> {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      resolve();
+    }, timeout);
+  });
 }

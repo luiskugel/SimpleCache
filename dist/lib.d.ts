@@ -24,9 +24,10 @@ export declare class JSONFileHandler {
     saveTimeout: number;
     value: any;
     saveRoutine: undefined | NodeJS.Timeout;
+    locked: boolean;
     constructor(filename: string, saveTimeout: number);
-    get(): Promise<any>;
-    set(data: any): void;
+    get(lock?: boolean): Promise<any>;
+    set(data: any, lock?: boolean): void;
     save(): Promise<void>;
 }
 export declare function createCompositeKey(...keyParts: string[]): string;
