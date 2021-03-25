@@ -73,6 +73,11 @@ class ArrayCache extends SimpleCache {
 exports.ArrayCache = ArrayCache;
 class JSONFileHandler {
     constructor(filename, saveTimeout) {
+        this.save = async () => {
+            await promises_1.default.writeFile(this.filename, JSON.stringify(this.value), {
+                encoding: "utf-8",
+            });
+        };
         this.filename = filename;
         this.saveTimeout = saveTimeout;
         this.value = undefined;
@@ -97,11 +102,6 @@ class JSONFileHandler {
         if (!this.locked)
             throw Error("The Ressource was not locked before writing! This can lead to race conditions!");
         this.locked = lock;
-    }
-    async save() {
-        await promises_1.default.writeFile(this.filename, JSON.stringify(this.value), {
-            encoding: "utf-8",
-        });
     }
 }
 exports.JSONFileHandler = JSONFileHandler;

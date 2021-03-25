@@ -1,5 +1,5 @@
 {
-  "name": "simplecache",
+  "name": "@idot-digital/simplecache",
   "version": "1.0.0",
   "main": "dist/lib.js",
   "license": "ISC",

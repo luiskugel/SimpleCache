@@ -115,11 +115,11 @@ export class JSONFileHandler {
       );
     this.locked = lock;
   }
-  async save() {
+  save = async () => {
     await fs.writeFile(this.filename, JSON.stringify(this.value), {
       encoding: "utf-8",
     });
-  }
+  };
 }
 
 export function createCompositeKey(...keyParts: string[]): string {

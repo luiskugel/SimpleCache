@@ -28,7 +28,7 @@ export declare class JSONFileHandler {
     constructor(filename: string, saveTimeout: number);
     get(lock?: boolean): Promise<any>;
     set(data: any, lock?: boolean): void;
-    save(): Promise<void>;
+    save: () => Promise<void>;
 }
 export declare function createCompositeKey(...keyParts: string[]): string;
 export declare function splitCompositeKey(key: string): string[];
