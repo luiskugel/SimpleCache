@@ -23,9 +23,12 @@ class SimpleCache {
         this.cleanUpScheduler = setInterval(this.cleanUp, cacheInvalidationTime / 10);
     }
     async get(key) {
-        if (this.value[key])
+        if (this.exists(key))
             return this.value[key].value;
         const newCacheValue = await this.getterFunction(key);
+        //to prevent race conditions
+        if (this.exists(key))
+            return this.value[key].value;
         this.value[key] = {
             value: newCacheValue,
             date: Date.now(),

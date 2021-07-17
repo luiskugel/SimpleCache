@@ -21,8 +21,10 @@ export class SimpleCache {
     );
   }
   async get(key: string) {
-    if (this.value[key]) return this.value[key].value;
+    if (this.exists(key)) return this.value[key].value;
     const newCacheValue = await this.getterFunction(key);
+    //to prevent race conditions
+    if (this.exists(key)) return this.value[key].value;
     this.value[key] = {
       value: newCacheValue,
       date: Date.now(),
