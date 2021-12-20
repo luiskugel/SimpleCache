@@ -1,15 +1,14 @@
 {
   "name": "@idot-digital/simplecache",
-  "version": "1.0.1",
+  "version": "1.2.1",
   "main": "dist/lib.js",
   "license": "ISC",
   "author": "Luis Kugel",
   "scripts": {
     "tsc": "tsc"
   },
-  "dependencies": {},
   "devDependencies": {
-    "@types/node": "^14.14.34",
+    "@types/node": "^14.14.35",
     "typescript": "^4.2.3"
   },
   "repository": {

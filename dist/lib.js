@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.splitCompositeKey = exports.createCompositeKey = exports.JSONFileHandler = exports.ArrayCache = exports.SimpleCache = void 0;
 const promises_1 = __importDefault(require("fs/promises"));
 class SimpleCache {
-    constructor(cacheInvalidationTime, getterFunction = (key) => { }, cleanupFunction = (key, value) => { }) {
+    constructor(cacheInvalidationTime, getterFunction, cleanupFunction = (key, value) => { }) {
         this.cleanUp = () => {
             const keys = Object.keys(this.value);
             keys.forEach(async (key) => {
@@ -17,6 +17,8 @@ class SimpleCache {
             });
         };
         this.value = {};
+        if (getterFunction === undefined)
+            getterFunction = (key) => null;
         this.getterFunction = getterFunction;
         this.cleanupFunction = cleanupFunction;
         this.cacheInvalidationTime = cacheInvalidationTime;
@@ -50,7 +52,7 @@ class SimpleCache {
 }
 exports.SimpleCache = SimpleCache;
 class ArrayCache extends SimpleCache {
-    constructor(cacheInvalidationTime, getterFunction = (key) => { }, cleanupFunction = (key, value) => { }) {
+    constructor(cacheInvalidationTime, getterFunction, cleanupFunction) {
         super(cacheInvalidationTime, getterFunction, cleanupFunction);
     }
     push(key, value) {

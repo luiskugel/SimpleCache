@@ -1,17 +1,18 @@
 import fs from "fs/promises";
 
-export class SimpleCache {
+export class SimpleCache<Type> {
   value: any;
-  getterFunction: (key: string) => void;
+  getterFunction: (key: string) => Type | null;
   cleanupFunction: (key: string, value: any) => void;
   cacheInvalidationTime: number;
   cleanUpScheduler: any;
   constructor(
     cacheInvalidationTime: number,
-    getterFunction = (key: string) => {},
-    cleanupFunction = (key: string, value: any) => {}
+    getterFunction: (key: string) => Type | null,
+    cleanupFunction = (key: string, value: Type) => {}
   ) {
     this.value = {};
+    if (getterFunction === undefined) getterFunction = (key: string) => null;
     this.getterFunction = getterFunction;
     this.cleanupFunction = cleanupFunction;
     this.cacheInvalidationTime = cacheInvalidationTime;
@@ -20,7 +21,7 @@ export class SimpleCache {
       cacheInvalidationTime / 10
     );
   }
-  async get(key: string) {
+  async get(key: string): Promise<Type | null> {
     if (this.exists(key)) return this.value[key].value;
     const newCacheValue = await this.getterFunction(key);
     //to prevent race conditions
@@ -34,7 +35,7 @@ export class SimpleCache {
   exists(key: string) {
     return this.value[key] !== undefined;
   }
-  add(key: string, value: any) {
+  add(key: string, value: Type) {
     this.value[key] = {
       value: value,
       date: Date.now(),
@@ -54,34 +55,34 @@ export class SimpleCache {
   };
 }
 
-export class ArrayCache extends SimpleCache {
+export class ArrayCache<Type> extends SimpleCache<Type> {
   constructor(
     cacheInvalidationTime: number,
-    getterFunction = (key: string) => {},
-    cleanupFunction = (key: string, value: any) => {}
+    getterFunction: (key: string) => Type | null,
+    cleanupFunction: (key: string, value: Type) => void
   ) {
     super(cacheInvalidationTime, getterFunction, cleanupFunction);
   }
-  push(key: string, value: any): void {
+  push(key: string, value: Type): void {
     if (!this.value[key]) this.value[key] = {};
     if (!this.value[key].value) this.value[key].value = [];
     this.value[key].value = [...this.value[key].value, value];
     this.value[key].date = Date.now();
   }
-  pushArray(key: string, valueArray: any[]): void {
+  pushArray(key: string, valueArray: Type[]): void {
     this.value[key].value = [...this.value[key].value, ...valueArray];
     this.value[key].date = Date.now();
   }
-  drop(key: string, value: any): void {
+  drop(key: string, value: Type): void {
     this.value[key].value = this.value[key].value.filter(
-      (storedValue: any) => storedValue !== value
+      (storedValue: Type) => storedValue !== value
     );
   }
-  dropArray(key: string, valueArray: any[]): any {
+  dropArray(key: string, valueArray: Type[]): Type {
     this.value[key].value = this.value[key].value.filter(
-      (storedValue: any) => !valueArray.includes(storedValue)
+      (storedValue: Type) => !valueArray.includes(storedValue)
     );
-    return this.value[key].value.filter((storedValue: any) =>
+    return this.value[key].value.filter((storedValue: Type) =>
       valueArray.includes(storedValue)
     );
   }

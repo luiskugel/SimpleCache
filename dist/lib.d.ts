@@ -1,23 +1,23 @@
 /// <reference types="node" />
-export declare class SimpleCache {
+export declare class SimpleCache<Type> {
     value: any;
-    getterFunction: (key: string) => void;
+    getterFunction: (key: string) => Type | null;
     cleanupFunction: (key: string, value: any) => void;
     cacheInvalidationTime: number;
     cleanUpScheduler: any;
-    constructor(cacheInvalidationTime: number, getterFunction?: (key: string) => void, cleanupFunction?: (key: string, value: any) => void);
-    get(key: string): Promise<any>;
+    constructor(cacheInvalidationTime: number, getterFunction: (key: string) => Type | null, cleanupFunction?: (key: string, value: Type) => void);
+    get(key: string): Promise<Type | null>;
     exists(key: string): boolean;
-    add(key: string, value: any): void;
+    add(key: string, value: Type): void;
     remove(key: any): void;
     cleanUp: () => void;
 }
-export declare class ArrayCache extends SimpleCache {
-    constructor(cacheInvalidationTime: number, getterFunction?: (key: string) => void, cleanupFunction?: (key: string, value: any) => void);
-    push(key: string, value: any): void;
-    pushArray(key: string, valueArray: any[]): void;
-    drop(key: string, value: any): void;
-    dropArray(key: string, valueArray: any[]): any;
+export declare class ArrayCache<Type> extends SimpleCache<Type> {
+    constructor(cacheInvalidationTime: number, getterFunction: (key: string) => Type | null, cleanupFunction: (key: string, value: Type) => void);
+    push(key: string, value: Type): void;
+    pushArray(key: string, valueArray: Type[]): void;
+    drop(key: string, value: Type): void;
+    dropArray(key: string, valueArray: Type[]): Type;
 }
 export declare class JSONFileHandler {
     filename: string;
