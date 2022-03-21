@@ -10,6 +10,8 @@ export declare class SimpleCache<Type> {
     exists(key: string): boolean;
     add(key: string, value: Type): void;
     remove(key: any): void;
+    refresh(key: string): void;
+    removeOldest(): void;
     cleanUp: () => void;
 }
 export declare class ArrayCache<Type> extends SimpleCache<Type> {

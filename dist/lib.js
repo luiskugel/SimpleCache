@@ -49,6 +49,16 @@ class SimpleCache {
     remove(key) {
         delete this.value[key];
     }
+    refresh(key) {
+        this.value[key].date = Date.now();
+    }
+    removeOldest() {
+        const oldestKey = Object.keys(this.value)
+            .sort((a, b) => this.value[a].date - this.value[b].date)
+            .shift();
+        if (oldestKey)
+            this.remove(oldestKey);
+    }
 }
 exports.SimpleCache = SimpleCache;
 class ArrayCache extends SimpleCache {

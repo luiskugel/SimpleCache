@@ -21,7 +21,7 @@ export class SimpleCache<Type> {
       cacheInvalidationTime / 10
     );
   }
-  async get(key: string): Promise<Type | null> {
+  public async get(key: string): Promise<Type | null> {
     if (this.exists(key)) return this.value[key].value;
     const newCacheValue = await this.getterFunction(key);
     //to prevent race conditions
@@ -32,19 +32,28 @@ export class SimpleCache<Type> {
     };
     return newCacheValue;
   }
-  exists(key: string) {
+  public exists(key: string) {
     return this.value[key] !== undefined;
   }
-  add(key: string, value: Type) {
+  public add(key: string, value: Type) {
     this.value[key] = {
       value: value,
       date: Date.now(),
     };
   }
-  remove(key: any) {
+  public remove(key: any) {
     delete this.value[key];
   }
-  cleanUp = () => {
+  public refresh(key: string) {
+    this.value[key].date = Date.now();
+  }
+  public removeOldest() {
+    const oldestKey = Object.keys(this.value)
+      .sort((a, b) => this.value[a].date - this.value[b].date)
+      .shift();
+    if (oldestKey) this.remove(oldestKey);
+  }
+  public cleanUp = () => {
     const keys = Object.keys(this.value);
     keys.forEach(async (key) => {
       if (this.value[key].date + this.cacheInvalidationTime < Date.now()) {
