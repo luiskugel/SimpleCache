@@ -6,16 +6,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.splitCompositeKey = exports.createCompositeKey = exports.JSONFileHandler = exports.ArrayCache = exports.SimpleCache = void 0;
 const promises_1 = __importDefault(require("fs/promises"));
 class SimpleCache {
+    value;
+    getterFunction;
+    cleanupFunction;
+    cacheInvalidationTime;
+    cleanUpScheduler;
     constructor(cacheInvalidationTime, getterFunction, cleanupFunction = (key, value) => { }) {
-        this.cleanUp = () => {
-            const keys = Object.keys(this.value);
-            keys.forEach(async (key) => {
-                if (this.value[key].date + this.cacheInvalidationTime < Date.now()) {
-                    await this.cleanupFunction(key, this.value[key].value);
-                    delete this.value[key];
-                }
-            });
-        };
         this.value = {};
         if (getterFunction === undefined)
             getterFunction = (key) => null;
@@ -59,6 +55,15 @@ class SimpleCache {
         if (oldestKey)
             this.remove(oldestKey);
     }
+    cleanUp = () => {
+        const keys = Object.keys(this.value);
+        keys.forEach(async (key) => {
+            if (this.value[key].date + this.cacheInvalidationTime < Date.now()) {
+                await this.cleanupFunction(key, this.value[key].value);
+                delete this.value[key];
+            }
+        });
+    };
 }
 exports.SimpleCache = SimpleCache;
 class ArrayCache extends SimpleCache {
@@ -87,12 +92,12 @@ class ArrayCache extends SimpleCache {
 }
 exports.ArrayCache = ArrayCache;
 class JSONFileHandler {
+    filename;
+    saveTimeout;
+    value;
+    saveRoutine;
+    locked;
     constructor(filename, saveTimeout) {
-        this.save = async () => {
-            await promises_1.default.writeFile(this.filename, JSON.stringify(this.value), {
-                encoding: "utf-8",
-            });
-        };
         this.filename = filename;
         this.saveTimeout = saveTimeout;
         this.value = undefined;
@@ -118,6 +123,11 @@ class JSONFileHandler {
             throw Error("The Ressource was not locked before writing! This can lead to race conditions!");
         this.locked = lock;
     }
+    save = async () => {
+        await promises_1.default.writeFile(this.filename, JSON.stringify(this.value), {
+            encoding: "utf-8",
+        });
+    };
 }
 exports.JSONFileHandler = JSONFileHandler;
 function createCompositeKey(...keyParts) {
